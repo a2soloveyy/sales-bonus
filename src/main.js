@@ -87,18 +87,17 @@ function analyzeSalesData(data, options) {
 
   seller.sales_count += 1;
 
-  const receiptRevenue =
-    (Number(record.total_amount) || 0) - (Number(record.total_discount) || 0);
-  seller.revenue += receiptRevenue;
-
   record.items.forEach((item) => {
     const product = productIndex[item.sku];
     if (!product) return;
+    
+    const revenueRaw = calculateRevenue(item, product);
 
-    const revenue = calculateRevenue(item, product);
+    const revenueRounded = +revenueRaw.toFixed(2);
+    seller.revenue += revenueRounded;
+
     const cost = (Number(product.purchase_price) || 0) * (Number(item.quantity) || 0);
-    const profit = revenue - cost;
-
+    const profit = revenueRaw - cost;
     seller.profit += profit;
 
     if (!seller.products_sold[item.sku]) {
@@ -127,13 +126,13 @@ sellerStats.forEach((seller, index) => {
 
     // @TODO: Подготовка итоговой коллекции с нужными полями
     return sellerStats.map((s) => ({
-    seller_id: s.id,
-    name: s.name,
-    revenue: +s.revenue.toFixed(2),
-    profit: +s.profit.toFixed(2),
-    sales_count: s.sales_count,
-    top_products: s.top_products,
-    bonus: +s.bonus.toFixed(2),
+  seller_id: s.id,
+  name: s.name,
+  revenue: +s.revenue.toFixed(2),
+  profit: +s.profit.toFixed(2),
+  sales_count: s.sales_count,
+  top_products: s.top_products,
+  bonus: +s.bonus.toFixed(2),
   }));
 }
 
