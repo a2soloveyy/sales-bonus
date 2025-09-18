@@ -133,3 +133,12 @@ sellerStats.forEach((seller, index) => {
     bonus: +s.bonus.toFixed(2),
   }));
 }
+
+
+if (typeof module !== 'undefined') {
+  module.exports = {
+    calculateSimpleRevenue,
+    calculateBonusByProfit,
+    analyzeSalesData,
+  };
+}
