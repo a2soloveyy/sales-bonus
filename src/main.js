@@ -82,28 +82,31 @@ function analyzeSalesData(data, options) {
 
     // @TODO: Расчет выручки и прибыли для каждого продавца
      data.purchase_records.forEach((record) => {
-    const seller = sellerIndex[record.seller_id];
-    if (!seller) return;
+  const seller = sellerIndex[record.seller_id];
+  if (!seller) return;
 
-    seller.sales_count += 1;
+  seller.sales_count += 1;
 
-    record.items.forEach((item) => {
-      const product = productIndex[item.sku];
-      if (!product) return;
+  const receiptRevenue =
+    (Number(record.total_amount) || 0) - (Number(record.total_discount) || 0);
+  seller.revenue += receiptRevenue;
 
-      const revenue = calculateRevenue(item, product);
-      const cost = (Number(product.purchase_price) || 0) * (Number(item.quantity) || 0);
-      const profit = revenue - cost;
+  record.items.forEach((item) => {
+    const product = productIndex[item.sku];
+    if (!product) return;
 
-      seller.revenue += revenue;
-      seller.profit += profit;
+    const revenue = calculateRevenue(item, product);
+    const cost = (Number(product.purchase_price) || 0) * (Number(item.quantity) || 0);
+    const profit = revenue - cost;
 
-      if (!seller.products_sold[item.sku]) {
-        seller.products_sold[item.sku] = 0;
-      }
-      seller.products_sold[item.sku] += Number(item.quantity) || 0;
-    });
+    seller.profit += profit;
+
+    if (!seller.products_sold[item.sku]) {
+      seller.products_sold[item.sku] = 0;
+    }
+    seller.products_sold[item.sku] += Number(item.quantity) || 0;
   });
+});
 
 
     // @TODO: Сортировка продавцов по прибыли
